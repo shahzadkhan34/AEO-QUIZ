@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Quiz AEO · Marketing Digital et Médias Sociaux</title>
+<style>
+  :root {
+    --navy: #21295C;
+    --teal: #1C7293;
+    --deep: #065A82;
+    --accent: #E8734A;
+    --accent-ink: #B94A22;
+    --bg: #EAF3F8;
+    --card: #FFFFFF;
+    --tint: #F2F7FA;
+    --ink: #1F2433;
+    --muted: #586374;
+    --line: #D3DCE6;
+    --ok: #1E7B4F;
+    --ko: #B3382C;
+    --serif: Cambria, Georgia, "Times New Roman", serif;
+    --sans: Calibri, "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --navy: #CADCFC;
+      --teal: #6CBAD6;
+      --deep: #8CCBE2;
+      --accent: #F08A63;
+      --accent-ink: #F6A283;
+      --bg: #0E1326;
+      --card: #181E3A;
+      --tint: #212850;
+      --ink: #EEF2F8;
+      --muted: #A9B4C6;
+      --line: #333C6B;
+      --ok: #62C796;
+      --ko: #F08A7E;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 18px;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+  }
+  header.bandeau {
+    background: #21295C;
+    color: #FFFFFF;
+    padding: 14px 16px;
+  }
+  header.bandeau .inner,
+  main,
+  footer .inner { width: 100%; max-width: 720px; margin: 0 auto; }
+  header.bandeau .inner { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  header.bandeau .titre { font-family: var(--serif); font-weight: 700; font-size: 20px; letter-spacing: .01em; }
+  header.bandeau .titre span { color: #E8734A; }
+  header.bandeau .cours { font-size: 14px; color: #CADCFC; }
+  main { flex: 1; padding: 20px 16px 32px; }
+  footer { padding: 14px 16px 22px; font-size: 13px; color: var(--muted); text-align: center; }
+
+  .carte {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px 20px;
+  }
+  @media (min-width: 600px) { .carte { padding: 32px; } }
+  h1, h2 { font-family: var(--serif); color: var(--navy); line-height: 1.25; margin: 0; }
+  h1 { font-size: 28px; }
+  .chapeau { color: var(--muted); margin: 8px 0 0; }
+
+  /* ---------- Accueil ---------- */
+  .regles { list-style: none; margin: 22px 0; padding: 0; display: grid; gap: 10px; }
+  .regles li { background: var(--tint); border-left: 4px solid var(--teal); border-radius: 6px; padding: 10px 14px; }
+  .regles strong { color: var(--navy); }
+  .champs { display: grid; gap: 14px; }
+  @media (min-width: 600px) { .champs { grid-template-columns: 1fr 1fr; } .champs .large { grid-column: 1 / -1; } }
+  label { display: block; font-weight: 700; font-size: 15px; margin-bottom: 4px; color: var(--navy); }
+  input[type="text"] {
+    width: 100%; font: inherit; color: var(--ink);
+    background: var(--card); border: 1.5px solid var(--line); border-radius: 8px; padding: 11px 12px;
+  }
+  input[type="text"]:focus-visible { outline: 3px solid var(--teal); outline-offset: 1px; border-color: var(--teal); }
+  .erreur { color: var(--ko); font-weight: 700; margin: 12px 0 0; min-height: 1.5em; }
+
+  .btn {
+    font: inherit; font-weight: 700; cursor: pointer;
+    background: var(--deep); color: #FFFFFF; border: 0; border-radius: 10px;
+    padding: 14px 22px; width: 100%; margin-top: 8px;
+  }
+  @media (prefers-color-scheme: dark) { .btn { color: #0E1326; } }
+  .btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn.secondaire { background: transparent; color: var(--deep); border: 1.5px solid var(--deep); width: auto; padding: 8px 16px; margin: 0 0 0 10px; }
+
+  /* ---------- Question ---------- */
+  .entete { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .entete .gauche { min-width: 0; }
+  .numero { font-weight: 700; color: var(--navy); font-size: 17px; }
+  .niveau { display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 10px; border-radius: 99px; border: 1.5px solid currentColor; }
+  .niveau.facile { color: var(--ok); }
+  .niveau.intermediaire { color: var(--teal); }
+  .niveau.difficile { color: var(--accent-ink); }
+
+  .minuteur { position: relative; width: 68px; height: 68px; flex: none; }
+  .minuteur svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .minuteur circle { fill: none; stroke-width: 6; }
+  .minuteur .fond { stroke: var(--line); }
+  .minuteur .arc { stroke: var(--teal); stroke-linecap: round; }
+  .minuteur .sec { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 700; font-size: 24px; color: var(--navy); font-variant-numeric: tabular-nums; }
+  .minuteur.urgent .arc { stroke: var(--accent); }
+  .minuteur.urgent .sec { color: var(--accent-ink); }
+
+  .avancement { height: 6px; background: var(--line); border-radius: 99px; margin: 16px 0 22px; overflow: hidden; }
+  .avancement > div { height: 100%; background: var(--teal); border-radius: 99px; width: 0; }
+
+  .scenario { background: var(--tint); border-left: 4px solid var(--teal); border-radius: 6px; padding: 12px 14px; margin: 0 0 16px; }
+  .scenario .etiquette { display: block; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--teal); margin-bottom: 2px; }
+  h2.question { font-size: 21px; margin: 0 0 16px; outline: none; }
+
+  .options { display: grid; gap: 10px; margin-bottom: 18px; }
+  .option {
+    font: inherit; color: var(--ink); text-align: left; cursor: pointer;
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px; width: 100%;
+  }
+  .option:hover { border-color: var(--teal); }
+  .option:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+  .option .lettre {
+    flex: none; width: 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 700; font-size: 15px;
+    border: 1.5px solid var(--line); color: var(--navy);
+  }
+  .option[aria-pressed="true"] { border-color: var(--deep); border-width: 2px; padding: 11.5px 13.5px; background: var(--tint); }
+  .option[aria-pressed="true"] .lettre { background: var(--deep); border-color: var(--deep); color: #FFFFFF; }
+  @media (prefers-color-scheme: dark) { .option[aria-pressed="true"] .lettre { color: #0E1326; } }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+    background: #21295C; color: #FFFFFF; border-left: 4px solid #E8734A;
+    padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 16px;
+    max-width: calc(100vw - 32px); opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .toast.visible { opacity: 1; }
+
+  /* ---------- Résultats ---------- */
+  .score { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin: 18px 0 6px; }
+  .score .note { font-family: var(--serif); font-weight: 700; font-size: 60px; line-height: 1; color: var(--navy); font-variant-numeric: tabular-nums; }
+  .score .note small { font-size: 28px; color: var(--muted); }
+  .score .pct { font-size: 22px; font-weight: 700; color: var(--teal); }
+  .statut { margin: 18px 0 0; padding: 12px 14px; border-radius: 8px; background: var(--tint); border-left: 4px solid var(--line); }
+  .statut.ok { border-left-color: var(--ok); }
+  .statut.ko { border-left-color: var(--ko); }
+  .statut.test { border-left-color: var(--accent); }
+
+  .correction { margin-top: 28px; }
+  .correction h2 { font-size: 22px; margin-bottom: 12px; }
+  .item { border-top: 1px solid var(--line); padding: 14px 0; }
+  .item .tete { display: flex; gap: 10px; align-items: baseline; font-weight: 700; }
+  .item .marque { flex: none; width: 1.4em; }
+  .item.juste .marque { color: var(--ok); }
+  .item.faux .marque { color: var(--ko); }
+  .item p { margin: 6px 0 0 calc(1.4em + 10px); font-size: 16px; }
+  .item .lib { color: var(--muted); }
+  .item .expl { color: var(--muted); font-style: italic; }
+
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="bandeau">
+  <div class="inner">
+    <div class="titre">L'AEO <span>·</span> Quiz</div>
+    <div class="cours">Marketing Digital et Médias Sociaux</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ===== Écran 1 : accueil ===== -->
+  <section id="accueil" class="carte" hidden>
+    <h1>Quiz : l'Answer Engine Optimization</h1>
+    <p class="chapeau">20 questions à choix multiple, basées sur des situations professionnelles.</p>
+
+    <ul class="regles">
+      <li><strong>30 secondes par question.</strong> Le minuteur démarre dès que la question s'affiche.</li>
+      <li><strong>Une question par écran,</strong> sans retour en arrière possible.</li>
+      <li><strong>À la fin du temps,</strong> la réponse sélectionnée est enregistrée. Sans sélection, la question compte comme non répondue.</li>
+      <li><strong>N'actualisez pas la page</strong> et ne la fermez pas : le temps continue de s'écouler.</li>
+    </ul>
+
+    <form id="formulaire" novalidate>
+      <div class="champs">
+        <div>
+          <label for="nom">Nom</label>
+          <input type="text" id="nom" autocomplete="family-name" maxlength="60" required>
+        </div>
+        <div>
+          <label for="prenom">Prénom</label>
+          <input type="text" id="prenom" autocomplete="given-name" maxlength="60" required>
+        </div>
+        <div class="large">
+          <label for="groupe">Groupe / classe</label>
+          <input type="text" id="groupe" maxlength="40" required>
+        </div>
+      </div>
+      <p class="erreur" id="erreur" role="alert"></p>
+      <button class="btn" type="submit">Commencer le quiz</button>
+    </form>
+  </section>
+
+  <!-- ===== Écran 2 : question ===== -->
+  <section id="quiz" class="carte" hidden>
+    <div class="entete">
+      <div class="gauche">
+        <div class="numero" id="numero"></div>
+        <span class="niveau" id="niveau"></span>
+      </div>
+      <div class="minuteur" id="minuteur" role="timer" aria-label="Temps restant en secondes">
+        <svg viewBox="0 0 68 68" aria-hidden="true">
+          <circle class="fond" cx="34" cy="34" r="30"></circle>
+          <circle class="arc" id="arc" cx="34" cy="34" r="30"></circle>
+        </svg>
+        <div class="sec" id="secondes">30</div>
+      </div>
+    </div>
+    <div class="avancement" aria-hidden="true"><div id="barre"></div></div>
+
+    <p class="scenario"><span class="etiquette">Situation</span><span id="scenario"></span></p>
+    <h2 class="question" id="question" tabindex="-1"></h2>
+    <div class="options" id="options" role="group" aria-labelledby="question"></div>
+    <button class="btn" id="valider" type="button" disabled>Valider et continuer</button>
+  </section>
+
+  <!-- ===== Écran 3 : résultats ===== -->
+  <section id="fin" class="carte" hidden>
+    <h1 id="finTitre">Quiz terminé</h1>
+    <p class="chapeau" id="finNom"></p>
+    <div class="score">
+      <div class="note"><span id="note">0</span><small> / <span id="total">20</span></small></div>
+      <div class="pct" id="pct"></div>
+    </div>
+    <p id="appreciation"></p>
+    <p class="statut" id="statut" role="status"></p>
+    <div class="correction" id="correction" hidden>
+      <h2>Correction</h2>
+      <div id="liste"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer><div class="inner">Marketing Digital et Médias Sociaux · BEM 2e année · L'AEO</div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================================
+     1. CONFIGURATION  (les seules lignes à modifier)
+     ===================================================================== */
+
+  // Collez ici l'URL de votre application web Google Apps Script (elle se termine par /exec).
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzy1DuzWiuiVRPN3H2glUQNOFNYXqsFnRfBzdRE6ykjD5fa7vdezE2kngKYGyilmFh2/exec";
+
+  const SECONDES_PAR_QUESTION = 30;    // durée du minuteur
+  const AFFICHER_CORRECTION   = true;  // true = correction détaillée à la fin ; false = score seul
+  const UNE_SEULE_TENTATIVE   = true;  // true = le quiz ne peut pas être refait sur le même navigateur
+
+  /* =====================================================================
+     2. QUESTIONS
+     Dans chaque question, LA PREMIÈRE OPTION EST LA BONNE RÉPONSE.
+     L'ordre des options est mélangé automatiquement à l'affichage.
+     ===================================================================== */
+
+  const QUESTIONS = [
+    // ------------------------------ FACILE ------------------------------
+    {
+      niveau: "Facile",
+      scenario: "Léa gère le marketing d'une boutique en ligne de thés. Elle constate que ses clients posent désormais leurs questions à ChatGPT plutôt que de cliquer sur des résultats Google.",
+      question: "Quelle discipline doit-elle travailler pour que sa marque apparaisse dans ces réponses ?",
+      options: [
+        "L'AEO (Answer Engine Optimization)",
+        "Le SEA (liens sponsorisés)",
+        "L'e-mail marketing",
+        "Le marketing d'affiliation"
+      ],
+      explication: "L'AEO consiste à structurer un contenu pour que les systèmes d'IA le comprennent, lui fassent confiance et le citent comme réponse directe."
+    },
+    {
+      niveau: "Facile",
+      scenario: "Le dirigeant d'une PME demande à son alternant : « Concrètement, quel est l'objectif de l'AEO ? »",
+      question: "Quelle réponse est correcte ?",
+      options: [
+        "Être cité dans une réponse générée par l'IA",
+        "Être classé dans les premiers résultats de Google",
+        "Acheter des emplacements publicitaires dans les IA",
+        "Gagner des abonnés sur les réseaux sociaux"
+      ],
+      explication: "Objectif du SEO : être classé dans les premiers résultats. Objectif de l'AEO : être cité dans une réponse générée par l'IA."
+    },
+    {
+      niveau: "Facile",
+      scenario: "Thomas cherche une assurance habitation. Au lieu d'utiliser un moteur de recherche classique, il pose sa question à Perplexity.",
+      question: "Qu'obtient-il, contrairement à une recherche classique ?",
+      options: [
+        "Une réponse directe et synthétisée",
+        "Une liste de liens à explorer",
+        "Une page d'annonces sponsorisées",
+        "Un comparateur de prix automatique"
+      ],
+      explication: "Résultat pour l'utilisateur : le SEO donne une liste de liens à explorer, l'AEO une réponse directe et synthétisée."
+    },
+    {
+      niveau: "Facile",
+      scenario: "Une agence veut vérifier si son client est cité par les moteurs de réponse IA présentés dans le cours.",
+      question: "Sur quel ensemble d'outils doit-elle faire ses tests ?",
+      options: [
+        "ChatGPT, Perplexity, Gemini et Google AI Overviews",
+        "Google Ads, Meta Ads, LinkedIn Ads et TikTok Ads",
+        "WordPress, Shopify, Wix et PrestaShop",
+        "Canva, Figma, Photoshop et Illustrator"
+      ],
+      explication: "Le cours cite ChatGPT, Perplexity, Google AI Overviews et Gemini comme systèmes d'IA visés par l'AEO."
+    },
+    {
+      niveau: "Facile",
+      scenario: "Le blog d'une salle de sport est 1er sur Google pour « programme musculation débutant ». Pourtant, il n'apparaît jamais dans les réponses générées par l'IA.",
+      question: "Quelle explication le cours donne-t-il ?",
+      options: [
+        "Son contenu n'est pas conçu pour être compris et cité par l'IA",
+        "Il n'a pas payé pour figurer dans les réponses de l'IA",
+        "Les IA ne citent jamais les blogs d'entreprise",
+        "Un site bien classé sur Google est exclu des réponses IA"
+      ],
+      explication: "Une marque très bien classée sur Google peut devenir invisible dans les réponses IA si son contenu n'est pas conçu pour être compris et cité."
+    },
+    {
+      niveau: "Facile",
+      scenario: "Pour une présentation client, une consultante doit résumer en une phrase le lien entre SEO et AEO.",
+      question: "Quelle formulation est juste ?",
+      options: [
+        "Complémentaires : le SEO amène du trafic, l'AEO la visibilité dans les réponses IA",
+        "Concurrents : l'AEO remplace le SEO, qui est devenu inutile",
+        "Identiques : ce sont deux noms différents pour la même pratique",
+        "Indépendants : l'AEO ne concerne que la publicité dans les IA"
+      ],
+      explication: "SEO et AEO sont complémentaires : l'un amène du trafic vers le site, l'autre construit la visibilité dans les réponses générées par l'IA."
+    },
+
+    // --------------------------- INTERMÉDIAIRE ---------------------------
+    {
+      niveau: "Intermédiaire",
+      scenario: "Dans un rapport destiné à sa direction, un consultant veut citer la part des recherches Google qui se terminent sans aucun clic vers un site externe.",
+      question: "Quel chiffre du cours doit-il retenir ?",
+      options: ["68 %", "55 %", "15 %", "8 %"],
+      explication: "68 % des recherches Google se terminent sans clic vers un site externe (Similarweb, cité par CXL, 2026)."
+    },
+    {
+      niveau: "Intermédiaire",
+      scenario: "Un site de recettes voit des résumés IA s'afficher sur ses principales requêtes Google.",
+      question: "D'après les données du cours, comment évolue le taux de clic sur ces recherches ?",
+      options: [
+        "Il chute d'environ 15 % à 8 %",
+        "Il grimpe d'environ 8 % à 15 %",
+        "Il reste stable autour de 15 %",
+        "Il chute d'environ 68 % à 55 %"
+      ],
+      explication: "Le taux de clic passe de 15 % à 8 % sur les recherches où un résumé IA apparaît (Pew Research, cité par CXL, 2026)."
+    },
+    {
+      niveau: "Intermédiaire",
+      scenario: "Un e-commerçant refuse d'investir dans l'AEO : « Le trafic qui vient des IA est trop faible pour compter. »",
+      question: "Quel argument du cours peut le faire changer d'avis ?",
+      options: [
+        "Ce trafic convertit mieux : 11,4 % contre 5,3 % pour l'organique",
+        "Ce trafic représente déjà 68 % des visites d'un site",
+        "Ce trafic garantit la première place sur Google",
+        "Ce trafic remplace totalement le trafic organique"
+      ],
+      explication: "Le trafic issu de l'IA convertit à 11,4 %, contre 5,3 % pour le trafic organique classique (HubSpot, 2026)."
+    },
+    {
+      niveau: "Intermédiaire",
+      scenario: "Une banque publie un article intitulé « Tout savoir sur le crédit immobilier ». Elle veut appliquer le pilier « réponses structurées en questions-réponses ».",
+      question: "Quel nouveau titre est le plus adapté ?",
+      options: [
+        "« Comment obtenir un crédit immobilier en 2026 ? »",
+        "« Crédit immobilier : le guide ultime et complet »",
+        "« Crédit immobilier, prêt, taux, emprunt, banque »",
+        "« Notre banque, experte du crédit depuis 1950 »"
+      ],
+      explication: "Bonne pratique du pilier 1 : utiliser des titres sous forme de questions, suivis d'une réponse claire et directe."
+    },
+    {
+      niveau: "Intermédiaire",
+      scenario: "Une mutuelle crée une page regroupant les 15 questions les plus fréquentes de ses adhérents, chacune suivie de sa réponse.",
+      question: "Quel balisage Schema.org est le plus adapté à cette page ?",
+      options: [
+        "FAQPage",
+        "HowTo",
+        "Article",
+        "Aucun : le balisage est réservé aux boutiques en ligne"
+      ],
+      explication: "Un balisage FAQPage aide l'IA à identifier instantanément chaque question et sa réponse."
+    },
+    {
+      niveau: "Intermédiaire",
+      scenario: "Un site de conseils santé publie des articles anonymes, sans sources et sans date de mise à jour.",
+      question: "Quel pilier de l'AEO est le plus négligé ?",
+      options: [
+        "E-E-A-T",
+        "Données structurées",
+        "Réponses concises et extractibles",
+        "Présence multi-plateformes"
+      ],
+      explication: "E-E-A-T : les IA privilégient les sources crédibles, avec un auteur identifié, une expertise démontrée, des sources citées et des mises à jour régulières."
+    },
+    {
+      niveau: "Intermédiaire",
+      scenario: "Une rédactrice rédige la réponse à la question « Qu'est-ce que le SEO off-page ? ». Elle veut que les premières phrases soient facilement extraites par une IA.",
+      question: "Quelle longueur doit-elle viser pour cette réponse ?",
+      options: ["40 à 60 mots", "5 à 10 mots", "150 à 200 mots", "Au moins 300 mots"],
+      explication: "Pilier 4 : répondre à la question dès les premières phrases, en 40 à 60 mots, dans un langage clair."
+    },
+    {
+      niveau: "Intermédiaire",
+      scenario: "Un site veut être cité par les IA pour la question « Qu'est-ce que le taux de rebond ? ».",
+      question: "Quel début de paragraphe est le plus « citable » ?",
+      options: [
+        "« Le taux de rebond est le pourcentage de visiteurs qui quittent un site après une seule page. »",
+        "« Depuis toujours, les marketeurs s'interrogent sur le comportement des internautes… »",
+        "« Taux de rebond, rebond, bounce rate, analytics, visiteurs, statistiques. »",
+        "« Découvrez notre agence, experte en analyse d'audience depuis 15 ans ! »"
+      ],
+      explication: "Une IA reprend directement une réponse claire, formulée en 1 à 2 phrases sous la question, sans longue introduction."
+    },
+
+    // ----------------------------- DIFFICILE -----------------------------
+    {
+      niveau: "Difficile",
+      scenario: "Une marque de cosmétiques bio possède un site très bien optimisé, mais les IA ne la mentionnent jamais. Elle décide de travailler le pilier « présence multi-plateformes ».",
+      question: "Quelle action relève de ce pilier ?",
+      options: [
+        "Encourager les avis clients et les mentions sur des sites tiers reconnus",
+        "Ajouter un balisage FAQPage sur toutes ses fiches produits",
+        "Raccourcir les introductions de ses articles de blog",
+        "Afficher la biographie et les crédentials de ses rédacteurs"
+      ],
+      explication: "Pilier 5 : être mentionné sur les plateformes que les IA consultent (Wikipédia, forums, avis clients, Q&R). Les trois autres actions relèvent des piliers 2, 4 et 3."
+    },
+    {
+      niveau: "Difficile",
+      scenario: "Un article de 2 000 mots ne répond à la question de son titre que vers le 1 500e mot.",
+      question: "D'après le cours, où la réponse clé devrait-elle se trouver ?",
+      options: [
+        "Dans les 600 premiers mots",
+        "Dans les 1 000 premiers mots",
+        "Entre le 1 000e et le 1 400e mot",
+        "Dans la conclusion, pour retenir le lecteur"
+      ],
+      explication: "La réponse clé doit figurer dans les 30 % premiers du contenu, soit 600 mots sur 2 000 : 55 % des citations d'AI Overviews proviennent de cette zone (CXL, 2026)."
+    },
+    {
+      niveau: "Difficile",
+      scenario: "Une start-up a obtenu 500 backlinks et se classe bien sur Google. Mais ses articles sont anonymes et sans sources, et les IA ne la citent jamais.",
+      question: "Quelle analyse correspond au cours ?",
+      options: [
+        "Elle a soigné les signaux de confiance du SEO, pas ceux de l'AEO",
+        "Elle n'a pas encore assez de backlinks pour convaincre les IA",
+        "Les IA ne citent jamais les entreprises récentes",
+        "Son classement sur Google suffit : il faut seulement patienter"
+      ],
+      explication: "Signaux de confiance du SEO : backlinks et autorité de domaine. Ceux de l'AEO : crédibilité des citations et E-E-A-T (auteur identifié, sources citées)."
+    },
+    {
+      niveau: "Difficile",
+      scenario: "Une page FAQ a des titres sous forme de questions et un balisage FAQPage valide. Mais chaque réponse commence par 200 mots sur l'histoire de l'entreprise.",
+      question: "Quelle correction est prioritaire ?",
+      options: [
+        "Donner la réponse dès les premières phrases, sans longue introduction",
+        "Reformuler tous les titres sous forme de questions",
+        "Ajouter un balisage Schema.org à la page",
+        "Allonger les réponses pour démontrer son expertise"
+      ],
+      explication: "Pilier 4 : éviter les longues introductions et placer la réponse clé dès les premières phrases. Les titres en questions et le balisage sont déjà en place."
+    },
+    {
+      niveau: "Difficile",
+      scenario: "Un développeur annonce : « J'ai ajouté un balisage FAQPage : notre page sera donc forcément citée par les IA. »",
+      question: "Quelle réponse est la plus juste selon le cours ?",
+      options: [
+        "Le balisage aide l'IA à comprendre ; pour être cité, il faut aussi inspirer confiance",
+        "C'est exact : un balisage valide suffit à garantir la citation",
+        "C'est faux : les IA ne tiennent pas compte des données structurées",
+        "C'est exact, mais seulement pour Google AI Overviews"
+      ],
+      explication: "Balisage = compréhension machine. Mais l'AEO repose sur trois étapes (compréhension, confiance, citation), et la confiance vient de la crédibilité : E-E-A-T et présence multi-plateformes."
+    },
+    {
+      niveau: "Difficile",
+      scenario: "Audit AEO d'une page produit : titres en questions, réponses en deux phrases, auteur expert identifié, marque citée sur plusieurs forums. Mais rien dans le code n'indique aux machines la nature du contenu.",
+      question: "Quelle recommandation est prioritaire ?",
+      options: [
+        "Ajouter des données structurées, puis les vérifier avec les outils de test de Google",
+        "Réécrire toutes les réponses pour les rendre encore plus concises",
+        "Ajouter une fiche auteur détaillée avec ses crédentials",
+        "Encourager de nouvelles mentions de la marque sur des sites tiers"
+      ],
+      explication: "Seul le pilier 2 manque : les données structurées (Schema.org) indiquent explicitement aux machines la nature du contenu."
+    }
+  ];
+
+  /* =====================================================================
+     3. FONCTIONNEMENT DU QUIZ  (rien à modifier ci-dessous)
+     ===================================================================== */
+
+  const CLE = 'quiz-aeo-bem2-v1';
+  const DUREE_MS = SECONDES_PAR_QUESTION * 1000;
+  const LETTRES = 'ABCDEF';
+  const CIRCONFERENCE = 2 * Math.PI * 30;
+  const ENVOI_CONFIGURE = /^https?:\/\//i.test(SCRIPT_URL);
+
+  const $ = (id) => document.getElementById(id);
+  let etat = null;
+  let horloge = null;
+  let toastTimer = null;
+
+  // --- Mémoire locale : permet de reprendre après une actualisation de la page ---
+  const memoire = {
+    lire() { try { return JSON.parse(localStorage.getItem(CLE)); } catch (e) { return null; } },
+    ecrire(v) { try { localStorage.setItem(CLE, JSON.stringify(v)); } catch (e) { /* stockage indisponible */ } },
+    effacer() { try { localStorage.removeItem(CLE); } catch (e) { /* stockage indisponible */ } }
+  };
+
+  // Typographie française : espaces insécables avant ? ! : ; % et dans les guillemets.
+  function typo(t) {
+    return String(t)
+      .replace(/ ([?!:;%»])/g, ' $1')
+      .replace(/« /g, '« ')
+      .replace(/(\d) (\d{3})/g, '$1 $2');
+  }
+
+  function melanger(tab) {
+    const t = tab.slice();
+    for (let i = t.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [t[i], t[j]] = [t[j], t[i]];
+    }
+    return t;
+  }
+
+  function identifiant() {
+    return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+  }
+
+  function montrer(ecran) {
+    ['accueil', 'quiz', 'fin'].forEach((n) => { $(n).hidden = (n !== ecran); });
+  }
+
+  function toast(message) {
+    const t = $('toast');
+    t.textContent = message;
+    t.classList.add('visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('visible'), 1800);
+  }
+
+  // ------------------------------ Accueil ------------------------------
+  $('formulaire').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nom = $('nom').value.trim();
+    const prenom = $('prenom').value.trim();
+    const groupe = $('groupe').value.trim();
+    if (!nom || !prenom || !groupe) {
+      $('erreur').textContent = 'Merci de renseigner votre nom, votre prénom et votre groupe.';
+      (!nom ? $('nom') : !prenom ? $('prenom') : $('groupe')).focus();
+      return;
+    }
+    etat = {
+      id: identifiant(),
+      nom, prenom, groupe,
+      debut: Date.now(),
+      index: 0,
+      choix: null,                 // option sélectionnée pour la question en cours
+      reponses: [],                // option retenue pour chaque question (0 = bonne réponse, null = aucune)
+      ordres: QUESTIONS.map((q) => melanger(q.options.map((_, i) => i))),
+      echeance: Date.now() + DUREE_MS,
+      fini: false,
+      envoye: false
+    };
+    memoire.ecrire(etat);
+    afficherQuestion();
+    window.scrollTo(0, 0);
+  });
+
+  // ------------------------------ Question ------------------------------
+  function afficherQuestion() {
+    const q = QUESTIONS[etat.index];
+    const ordre = etat.ordres[etat.index];
+    const dernier = etat.index === QUESTIONS.length - 1;
+
+    montrer('quiz');
+    $('numero').textContent = 'Question ' + (etat.index + 1) + ' / ' + QUESTIONS.length;
+    const niv = $('niveau');
+    niv.textContent = q.niveau;
+    niv.className = 'niveau ' + q.niveau.toLowerCase().normalize('NFD').replace(/[^a-z]/g, '');
+    $('barre').style.width = (etat.index / QUESTIONS.length * 100) + '%';
+    $('scenario').textContent = typo(q.scenario);
+    $('question').textContent = typo(q.question);
+
+    const zone = $('options');
+    zone.textContent = '';
+    ordre.forEach((numOption, position) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'option';
+      b.dataset.option = numOption;
+      b.setAttribute('aria-pressed', String(etat.choix === numOption));
+      const lettre = document.createElement('span');
+      lettre.className = 'lettre';
+      lettre.textContent = LETTRES[position];
+      const texte = document.createElement('span');
+      texte.textContent = typo(q.options[numOption]);
+      b.append(lettre, texte);
+      b.addEventListener('click', () => choisir(numOption));
+      zone.appendChild(b);
+    });
+
+    const bouton = $('valider');
+    bouton.textContent = dernier ? 'Valider et terminer le quiz' : 'Valider et continuer';
+    bouton.disabled = (etat.choix === null);
+
+    demarrerMinuteur();
+    if (!$('quiz').hidden) $('question').focus({ preventScroll: true });
+  }
+
+  function choisir(numOption) {
+    etat.choix = numOption;
+    memoire.ecrire(etat);
+    $('options').querySelectorAll('.option').forEach((b) => {
+      b.setAttribute('aria-pressed', String(Number(b.dataset.option) === numOption));
+    });
+    $('valider').disabled = false;
+  }
+
+  $('valider').addEventListener('click', () => {
+    if (etat && !etat.fini && etat.choix !== null) questionSuivante(false);
+  });
+
+  function demarrerMinuteur() {
+    arreterMinuteur();
+    const maj = () => {
+      const reste = etat.echeance - Date.now();
+      if (reste <= 0) { questionSuivante(true); return; }
+      const s = Math.ceil(reste / 1000);
+      $('secondes').textContent = s;
+      $('arc').style.strokeDasharray = CIRCONFERENCE;
+      $('arc').style.strokeDashoffset = CIRCONFERENCE * (1 - Math.min(1, reste / DUREE_MS));
+      $('minuteur').classList.toggle('urgent', s <= 10);
+    };
+    horloge = setInterval(maj, 100);
+    maj();
+  }
+
+  function arreterMinuteur() {
+    if (horloge) { clearInterval(horloge); horloge = null; }
+  }
+
+  function questionSuivante(tempsEcoule) {
+    arreterMinuteur();
+    etat.reponses[etat.index] = etat.choix;   // null si rien n'a été sélectionné
+    etat.choix = null;
+    etat.index += 1;
+    if (etat.index < QUESTIONS.length) {
+      etat.echeance = Date.now() + DUREE_MS;
+      memoire.ecrire(etat);
+      if (tempsEcoule) toast('Temps écoulé : question suivante');
+      afficherQuestion();
+      window.scrollTo(0, 0);
+    } else {
+      terminer();
+    }
+  }
+
+  // Si l'onglet revient au premier plan, on recalcule immédiatement le temps restant.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && etat && !etat.fini && !$('quiz').hidden) demarrerMinuteur();
+  });
+
+  // Avertit avant de quitter la page pendant le quiz.
+  window.addEventListener('beforeunload', (e) => {
+    if (etat && !etat.fini) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  // ------------------------------ Résultats ------------------------------
+  function bilan() {
+    const detail = QUESTIONS.map((q, i) => (etat.reponses[i] === 0 ? 1 : 0));
+    const score = detail.reduce((a, b) => a + b, 0);
+    const sansReponse = QUESTIONS.filter((q, i) => etat.reponses[i] === null || etat.reponses[i] === undefined).length;
+    return { detail, score, sansReponse };
+  }
+
+  function terminer() {
+    etat.fini = true;
+    etat.duree = Math.round((Date.now() - etat.debut) / 1000);
+    memoire.ecrire(etat);
+    afficherFin(false);
+    window.scrollTo(0, 0);
+    envoyer();
+  }
+
+  function afficherFin(dejaFait) {
+    const b = bilan();
+    const total = QUESTIONS.length;
+    const pct = Math.round(b.score / total * 100);
+    montrer('fin');
+    $('finTitre').textContent = dejaFait ? 'Vous avez déjà réalisé ce quiz' : 'Quiz terminé';
+    $('finNom').textContent = etat.prenom + ' ' + etat.nom + ' · ' + etat.groupe;
+    $('note').textContent = b.score;
+    $('total').textContent = total;
+    $('pct').textContent = typo(pct + ' %');
+    let msg;
+    if (pct >= 80) msg = 'Excellent : vous maîtrisez les notions clés de l\'AEO.';
+    else if (pct >= 60) msg = 'Bon résultat : les bases sont acquises, quelques points restent à consolider.';
+    else if (pct >= 40) msg = 'Résultat moyen : relisez les 5 piliers de l\'AEO.';
+    else msg = 'Résultat insuffisant : reprenez le cours, en particulier les 5 piliers de l\'AEO.';
+    if (b.sansReponse > 0) {
+      msg += ' ' + b.sansReponse + (b.sansReponse > 1 ? ' questions sont restées' : ' question est restée') + ' sans réponse.';
+    }
+    $('appreciation').textContent = typo(msg);
+
+    if (AFFICHER_CORRECTION) {
+      const liste = $('liste');
+      liste.textContent = '';
+      QUESTIONS.forEach((q, i) => {
+        const r = etat.reponses[i];
+        const juste = (r === 0);
+        const item = document.createElement('div');
+        item.className = 'item ' + (juste ? 'juste' : 'faux');
+
+        const tete = document.createElement('div');
+        tete.className = 'tete';
+        const marque = document.createElement('span');
+        marque.className = 'marque';
+        marque.textContent = juste ? '✔' : '✘';
+        marque.setAttribute('aria-label', juste ? 'Bonne réponse' : 'Mauvaise réponse');
+        const titre = document.createElement('span');
+        titre.textContent = typo((i + 1) + '. ' + q.question);
+        tete.append(marque, titre);
+        item.appendChild(tete);
+
+        const ligne = (libelle, valeur, classe) => {
+          const p = document.createElement('p');
+          if (classe) p.className = classe;
+          if (libelle) {
+            const l = document.createElement('span');
+            l.className = 'lib';
+            l.textContent = typo(libelle + ' : ');
+            p.appendChild(l);
+          }
+          p.appendChild(document.createTextNode(typo(valeur)));
+          item.appendChild(p);
+        };
+        ligne('Situation', q.scenario);
+        ligne('Votre réponse', (r === null || r === undefined) ? 'aucune (temps écoulé)' : q.options[r]);
+        if (!juste) ligne('Bonne réponse', q.options[0]);
+        ligne('', q.explication, 'expl');
+        liste.appendChild(item);
+      });
+      $('correction').hidden = false;
+    }
+  }
+
+  function donneesEnvoi() {
+    const b = bilan();
+    return {
+      id: etat.id,
+      nom: etat.nom,
+      prenom: etat.prenom,
+      groupe: etat.groupe,
+      score: b.score,
+      total: QUESTIONS.length,
+      pourcentage: Math.round(b.score / QUESTIONS.length * 100),
+      duree: etat.duree,
+      sansReponse: b.sansReponse,
+      reponses: b.detail            // 1 = bonne réponse, 0 = mauvaise réponse ou absence de réponse
+    };
+  }
+
+  async function envoyer() {
+    const s = $('statut');
+    const afficher = (classe, texte) => { s.className = 'statut ' + classe; s.textContent = texte; };
+
+    if (!ENVOI_CONFIGURE) {
+      afficher('test', 'Mode test : les résultats ne sont pas enregistrés (SCRIPT_URL n\'est pas encore configurée).');
+      return;
+    }
+    if (etat.envoye) { afficher('ok', 'Vos résultats ont bien été enregistrés.'); return; }
+
+    afficher('', 'Enregistrement de vos résultats…');
+    try {
+      const reponse = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(donneesEnvoi())
+      });
+      const json = await reponse.json();
+      if (!json || json.status !== 'ok') throw new Error((json && json.message) || 'réponse inattendue');
+      etat.envoye = true;
+      memoire.ecrire(etat);
+      afficher('ok', 'Vos résultats ont bien été enregistrés.');
+    } catch (err) {
+      afficher('ko', 'L\'enregistrement n\'a pas pu être confirmé. Vérifiez votre connexion, puis réessayez. Ne fermez pas cette page.');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn secondaire';
+      b.textContent = 'Réessayer';
+      b.addEventListener('click', envoyer);
+      s.appendChild(b);
+    }
+  }
+
+  // ------------------------------ Démarrage ------------------------------
+  (function demarrer() {
+    // Ajoutez ?reset=1 à l'adresse de la page pour effacer une tentative (utile pour vos tests).
+    if (/[?&]reset=1\b/.test(location.search)) memoire.effacer();
+
+    const sauvegarde = memoire.lire();
+    const valide = sauvegarde && Array.isArray(sauvegarde.ordres) && sauvegarde.ordres.length === QUESTIONS.length;
+
+    if (valide && sauvegarde.fini && UNE_SEULE_TENTATIVE) {
+      etat = sauvegarde;
+      afficherFin(true);
+      envoyer();
+    } else if (valide && !sauvegarde.fini) {
+      etat = sauvegarde;            // reprise après actualisation : le minuteur n'est pas remis à zéro
+      afficherQuestion();
+    } else {
+      if (sauvegarde) memoire.effacer();
+      montrer('accueil');
+    }
+  })();
+})();
+</script>
+</body>
+</html>
